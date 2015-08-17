@@ -1,0 +1,8 @@
+{
+    "@metadata": {
+		"authors": [
+			"Ike Hecht"
+		]
+    },
+    "google-analytics-metrics-desc": "Gets metrics from Google Analytics"
+}

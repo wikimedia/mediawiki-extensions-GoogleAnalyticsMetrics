@@ -1,0 +1,27 @@
+{
+	"name": "GoogleAnalyticsMetrics",
+	"version": "0.1.0 beta",
+	"author": [
+		"Ike Hecht"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:GoogleAnalyticsMetrics",
+	"descriptionmsg": "google-analytics-metrics-desc",
+	"license-name": "GPL-2.0+",
+	"type": "parserhook",
+	"AutoloadClasses": {
+		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php"
+	},
+	"config": {
+		"wgGoogleAnalyticsMetricsAllowed": "*",
+		"wgGoogleAnalyticsMetricsEmail": null,
+		"wgGoogleAnalyticsMetricsPath": null
+	},
+	"ExtensionMessagesFiles": {
+		"GoogleAnalyticsMetricsHooksMagic": "GoogleAnalyticsMetrics.i18n.magic.php"
+	},
+	"Hooks": {
+		"ParserFirstCallInit": [
+			"GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
+		]
+	}
+}
