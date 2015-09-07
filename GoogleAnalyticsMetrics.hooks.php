@@ -28,6 +28,7 @@ class GoogleAnalyticsMetricsHooks {
 
 		// Setting the defaults above would not allow an empty start parameter
 		if ( !$startDate ) {
+			// This is the earliest date Analytics accepts
 			$startDate = '2005-01-01';
 		}
 		if ( !$endDate ) {
@@ -45,25 +46,44 @@ class GoogleAnalyticsMetricsHooks {
 	 * Gets the Analytics metric with the dates provided
 	 *
 	 * @global string $wgGoogleAnalyticsMetricsViewID
+	 * @global int $wgGoogleAnalyticsMetricsExpiry
 	 * @param string $metric The name of the Analyitcs metric, without the "ga:" prefix
 	 * @param string $startDate Must be a valid date recognized by the Google API
 	 * @param string $endDate Must be a valid date recognized by the Google API
 	 * @return string
 	 */
 	public static function getMetric( $metric, $startDate, $endDate ) {
-		global $wgGoogleAnalyticsMetricsViewID;
-		$service = self::getService();
-		try {
-			$response = $service->data_ga->get(
-				'ga:' . $wgGoogleAnalyticsMetricsViewID, $startDate, $endDate, 'ga:' . $metric
-			);
-		} catch ( Exception $e ) {
-			MWExceptionHandler::logException( $e );
-			return self::getWrappedError( 'Error!' );
+		global $wgGoogleAnalyticsMetricsViewID, $wgGoogleAnalyticsMetricsExpiry;
+
+		// We store the ID in the cache, but that is not a waste, since if the ID changes that
+		// data is no longer valid.
+		$request = array( 'ga:' . $wgGoogleAnalyticsMetricsViewID, $startDate, $endDate, 'ga:' . $metric );
+
+		$responseMetric = GoogleAnalyticsMetricsCache::getCache( $request );
+
+		if ( !$responseMetric ) {
+			$service = self::getService();
+			try {
+				$response = call_user_func_array( array( $service->data_ga, 'get' ), $request );
+				$rows = $response->getRows();
+				$responseMetric = $rows[0][0]; //Pull only the individual piece of data we're returning
+				GoogleAnalyticsMetricsCache::setCache( $request, $responseMetric,
+					$wgGoogleAnalyticsMetricsExpiry );
+			} catch ( Exception $e ) {
+				MWExceptionHandler::logException( $e );
+
+				// Try to at least return something, however old it is
+				$lastValue = GoogleAnalyticsMetricsCache::getCache( $request, true );
+				if ( $lastValue ) {
+					return $lastValue;
+				} else {
+					return self::getWrappedError( 'Error!' );
+				}
+			}
 		}
 
-		$rows = $response->getRows();
-		return $rows[0][0];
+
+		return $responseMetric;
 	}
 
 	/**
@@ -117,5 +137,16 @@ class GoogleAnalyticsMetricsHooks {
 	 */
 	private static function getWrappedError( $text ) {
 		return Html::element( 'span', array( 'class' => 'error' ), $text );
+	}
+
+	/**
+	 *
+	 * @param DatabaseUpdater $updater
+	 * @return boolean
+	 */
+	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
+		$updater->addExtensionTable( GoogleAnalyticsMetricsCache::TABLE,
+			__DIR__ . '/GoogleAnalyticsMetrics.sql', true );
+		return true;
 	}
 }

@@ -1,6 +1,6 @@
 {
 	"name": "GoogleAnalyticsMetrics",
-	"version": "0.1.0 beta",
+	"version": "0.2.0 beta",
 	"author": [
 		"Ike Hecht"
 	],
@@ -9,12 +9,14 @@
 	"license-name": "GPL-2.0+",
 	"type": "parserhook",
 	"AutoloadClasses": {
-		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php"
+		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php",
+		"GoogleAnalyticsMetricsCache": "GoogleAnalyticsMetricsCache.php"
 	},
 	"config": {
 		"wgGoogleAnalyticsMetricsAllowed": "*",
 		"wgGoogleAnalyticsMetricsEmail": null,
-		"wgGoogleAnalyticsMetricsPath": null
+		"wgGoogleAnalyticsMetricsPath": null,
+		"wgGoogleAnalyticsMetricsExpiry": 600
 	},
 	"ExtensionMessagesFiles": {
 		"GoogleAnalyticsMetricsHooksMagic": "GoogleAnalyticsMetrics.i18n.magic.php"
@@ -22,6 +24,9 @@
 	"Hooks": {
 		"ParserFirstCallInit": [
 			"GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
+		],
+		"LoadExtensionSchemaUpdates": [
+			"GoogleAnalyticsMetricsHooks::onLoadExtensionSchemaUpdates"
 		]
 	},
 	"manifest_version": 1

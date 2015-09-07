@@ -9,7 +9,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'author' => 'Ike Hecht',
 	'url' => 'https://www.mediawiki.org/wiki/Extension:GoogleAnalyticsMetrics',
 	'descriptionmsg' => 'google-analytics-metrics-desc',
-	'version' => '0.1.0 beta',
+	'version' => '0.2.0 beta',
 	'license-name' => 'GPL-2.0+'
 );
 
@@ -18,9 +18,12 @@ $wgExtensionMessagesFiles['GoogleAnalyticsMetricsHooksMagic'] = __DIR__ .
 	'/GoogleAnalyticsMetrics.i18n.magic.php';
 
 $wgAutoloadClasses['GoogleAnalyticsMetricsHooks'] = __DIR__ . '/GoogleAnalyticsMetrics.hooks.php';
+$wgAutoloadClasses['GoogleAnalyticsMetricsCache'] = __DIR__ . '/GoogleAnalyticsMetricsCache.php';
 
 $wgHooks['ParserFirstCallInit'][] = 'GoogleAnalyticsMetricsHooks::onParserFirstCallInit';
+$wgHooks['LoadExtensionSchemaUpdates'][] = 'GoogleAnalyticsMetricsHooks::onLoadExtensionSchemaUpdates';
 
 $wgGoogleAnalyticsMetricsAllowed = '*';
 $wgGoogleAnalyticsMetricsEmail = null;
 $wgGoogleAnalyticsMetricsPath = null;
+$wgGoogleAnalyticsMetricsExpiry = 600; //10 minutes
