@@ -5,7 +5,7 @@
 		"Ike Hecht"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:GoogleAnalyticsMetrics",
-	"descriptionmsg": "google-analytics-metrics-desc",
+	"descriptionmsg": "googleanalyticsmetrics-desc",
 	"license-name": "GPL-2.0+",
 	"type": "parserhook",
 	"AutoloadClasses": {
