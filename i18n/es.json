@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Macofe"
+		]
+	},
+	"googleanalyticsmetrics-desc": "Obtiene las métricas de Google Analytics"
+}

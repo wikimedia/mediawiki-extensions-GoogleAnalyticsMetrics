@@ -1,0 +1,8 @@
+{
+	"@metadata": {
+		"authors": [
+			"Okras"
+		]
+	},
+	"googleanalyticsmetrics-desc": "Получает метрики из Google Analytics"
+}
