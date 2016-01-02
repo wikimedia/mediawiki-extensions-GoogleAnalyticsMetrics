@@ -23,5 +23,6 @@
 		"ParserFirstCallInit": [
 			"GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
 		]
-	}
+	},
+	"manifest_version": 1
 }
