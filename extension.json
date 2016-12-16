@@ -8,6 +8,11 @@
 	"descriptionmsg": "googleanalyticsmetrics-desc",
 	"license-name": "GPL-2.0+",
 	"type": "parserhook",
+	"MessagesDirs": {
+		"GoogleAnalyticsMetrics": [
+			"i18n"
+		]
+	},
 	"AutoloadClasses": {
 		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php",
 		"GoogleAnalyticsMetricsCache": "GoogleAnalyticsMetricsCache.php"
