@@ -13,7 +13,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'license-name' => 'GPL-2.0+'
 );
 
-$wgMessageDirs['GoogleAnalyticsMetrics'] = __DIR__ . '/i18n';
+$wgMessagesDirs['GoogleAnalyticsMetrics'] = __DIR__ . '/i18n';
 $wgExtensionMessagesFiles['GoogleAnalyticsMetricsHooksMagic'] = __DIR__ .
 	'/GoogleAnalyticsMetrics.i18n.magic.php';
 
