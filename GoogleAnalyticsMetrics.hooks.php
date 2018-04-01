@@ -2,6 +2,7 @@
 
 class GoogleAnalyticsMetricsHooks {
 
+	private static $client = null;
 	/**
 	 * Sets up the parser function
 	 *
@@ -10,6 +11,19 @@ class GoogleAnalyticsMetricsHooks {
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		$parser->setFunctionHook( 'googleanalyticsmetrics',
 			'GoogleAnalyticsMetricsHooks::googleAnalyticsMetrics' );
+		$parser->setFunctionHook( 'googleanalyticstrackurl',
+			'GoogleAnalyticsMetricsHooks::googleAnalyticsTrackUrl' );
+	}
+
+	public static function googleAnalyticsTrackUrl( Parser &$parser, $link, $link_text ) {
+		$link_html = Linker::makeExternalLink(
+			$link,
+			$link_text,
+			true,
+			'',
+			[ "onClick" => "ga('send', 'event', 'link', 'click', '$link' );" ]
+		);
+		return array( $link_html, 'noparse' => true, 'isHTML' => true );
 	}
 
 	/**
@@ -22,53 +36,143 @@ class GoogleAnalyticsMetricsHooks {
 	 * @param string $endDate
 	 * @return string
 	 */
-	public static function googleAnalyticsMetrics( Parser &$parser, $metric, $startDate = null,
-		$endDate = null ) {
-		global $wgGoogleAnalyticsMetricsAllowed;
+	public static function googleAnalyticsMetrics( Parser &$parser ) {
+		global $wgGoogleAnalyticsMetricsAllowed, $wgScript, $wgUsePathInfo;
+		$options = self::extractOptions( array_slice( func_get_args(), 1 ) );
 
-		// Setting the defaults above would not allow an empty start parameter
-		if ( !$startDate ) {
-			// This is the earliest date Analytics accepts
-			$startDate = '2005-01-01';
+		// This is the earliest date Analytics accepts
+		if ( !isset( $options['startDate'] ) ) {
+			$options['startDate'] = '2005-01-01';
 		}
-		if ( !$endDate ) {
-			$endDate = 'today';
+
+		if ( !isset( $options['endDate'] ) ) {
+			$options['endDate'] = 'today';
 		}
-		if ( $wgGoogleAnalyticsMetricsAllowed !== '*' && !in_array( $metric,
+
+		if ( $wgGoogleAnalyticsMetricsAllowed !== '*' && !in_array( $options['metric'],
 				$wgGoogleAnalyticsMetricsAllowed ) ) {
 			return self::getWrappedError( 'The requested metric is forbidden.' );
 		}
 
-		return self::getMetric( $metric, $startDate, $endDate );
+		if ( isset( $options['page'] ) ) {
+			$pageName = $options['page'];
+
+			$options['page'] = Title::newFromText( $pageName )->getLocalURL();
+			$metric_short_url = self::getMetric( $options );
+
+			if ( $wgUsePathInfo ) {
+				$options['page'] = "$wgScript/$pageName";
+			} else {
+				$options['page'] = "$wgScript?title=$pageName";
+			}
+			$metric_long_url = self::getMetric( $options );
+
+			return $metric_short_url + $metric_long_url;
+		}
+		return self::getMetric( $options );
+	}
+
+	// Another way to do this is to provide the Id as a config but its an unnecessary step.
+	public static function getFirstProfileId( $service ) {
+	  $accounts = $service->management_accounts->listManagementAccounts();
+
+	  if ( count( $accounts->getItems() ) > 0 ) {
+		$items = $accounts->getItems();
+		$firstAccountId = $items[0]->getId();
+		$properties = $service->management_webproperties
+			->listManagementWebproperties($firstAccountId);
+
+		if ( count( $properties->getItems() ) > 0 ) {
+		  $items = $properties->getItems();
+		  $firstPropertyId = $items[0]->getId();
+
+		  $profiles = $service->management_profiles
+			  ->listManagementProfiles($firstAccountId, $firstPropertyId);
+
+		  if ( count($profiles->getItems() ) > 0 ) {
+			$items = $profiles->getItems();
+
+			return $items[0]->getId();
+
+		  } else {
+			throw new Exception( 'No views (profiles) found for this user.' );
+		  }
+		} else {
+		  throw new Exception( 'No properties found for this user.' );
+		}
+	  } else {
+		throw new Exception( 'No accounts found for this user.' );
+	  }
 	}
 
 	/**
 	 * Gets the Analytics metric with the dates provided
+	 * Based on https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-php
 	 *
-	 * @global string $wgGoogleAnalyticsMetricsViewID
 	 * @global int $wgGoogleAnalyticsMetricsExpiry
-	 * @param string $metric The name of the Analyitcs metric, without the "ga:" prefix
-	 * @param string $startDate Must be a valid date recognized by the Google API
-	 * @param string $endDate Must be a valid date recognized by the Google API
 	 * @return string
 	 */
-	public static function getMetric( $metric, $startDate, $endDate ) {
-		global $wgGoogleAnalyticsMetricsViewID, $wgGoogleAnalyticsMetricsExpiry;
+	public static function getMetric( $options ) {
+		global $wgGoogleAnalyticsMetricsExpiry;
 
-		// We store the ID in the cache, but that is not a waste, since if the ID changes that
-		// data is no longer valid.
-		$request = array( 'ga:' . $wgGoogleAnalyticsMetricsViewID, $startDate, $endDate, 'ga:' . $metric );
+		$service = self::getService();
+		$viewId = self::getFirstProfileId( $service );
+		$analytics = self::getAnalyticsReporting();
+
+		// Create the DateRange object.
+		$dateRange = new Google_Service_AnalyticsReporting_DateRange();
+		$dateRange->setStartDate( $options['startDate'] );
+		$dateRange->setEndDate( $options['endDate'] );
+
+		// Create the Metrics object.
+		$metrics = new Google_Service_AnalyticsReporting_Metric();
+		$metrics->setExpression( "ga:" . $options['metric'] );
+
+		// Create the ReportRequest object.
+		$request = new Google_Service_AnalyticsReporting_ReportRequest();
+		$request->setViewId( $viewId );
+		$request->setDateRanges( $dateRange );
+		$request->setMetrics( array( $metrics ) );
+
+		if ( isset( $options['page'] ) ) {
+			// Create the DimensionFilter.
+			$dimensionFilter = new Google_Service_AnalyticsReporting_DimensionFilter();
+			$dimensionFilter->setDimensionName( 'ga:pagePath' );
+			$dimensionFilter->setOperator( 'EXACT' );
+			$dimensionFilter->setExpressions( array( $options['page'] ) );
+
+			// Create the DimensionFilterClauses
+			$dimensionFilterClause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
+			$dimensionFilterClause->setFilters( array( $dimensionFilter ) );
+
+			$request->setDimensionFilterClauses( array( $dimensionFilterClause ) );
+		} else if ( isset( $options['url'] ) ) {
+			// Create the DimensionFilter.
+			$dimensionFilter = new Google_Service_AnalyticsReporting_DimensionFilter();
+			$dimensionFilter->setDimensionName( 'ga:eventLabel' );
+			$dimensionFilter->setOperator( 'EXACT' );
+			$dimensionFilter->setExpressions( array( $options['url'] ) );
+
+			// Create the DimensionFilterClauses
+			$dimensionFilterClause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
+			$dimensionFilterClause->setFilters( array( $dimensionFilter ) );
+			$request->setDimensionFilterClauses( array( $dimensionFilterClause ) );
+		}
 
 		$responseMetric = GoogleAnalyticsMetricsCache::getCache( $request );
 
 		if ( !$responseMetric ) {
-			$service = self::getService();
 			try {
-				$response = call_user_func_array( array( $service->data_ga, 'get' ), $request );
-				$rows = $response->getRows();
-				$responseMetric = $rows[0][0]; //Pull only the individual piece of data we're returning
-				GoogleAnalyticsMetricsCache::setCache( $request, $responseMetric,
-					$wgGoogleAnalyticsMetricsExpiry );
+				$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
+				$body->setReportRequests( array( $request ) );
+				$responseMetric = self::getOutputFromResults( $analytics->reports->batchGet( $body ) );
+
+				GoogleAnalyticsMetricsCache::setCache(
+					$request,
+					$responseMetric,
+					$wgGoogleAnalyticsMetricsExpiry
+				);
+
 			} catch ( Exception $e ) {
 				MWExceptionHandler::logException( $e );
 
@@ -86,47 +190,44 @@ class GoogleAnalyticsMetricsHooks {
 		return $responseMetric;
 	}
 
+	private static function getOutputFromResults( $reports ) {
+		$rows = $reports[0]->getData()->getRows();
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+		$row = $rows[0];
+		$dimensions = $row->getDimensions();
+		$metrics = $row->getMetrics();
+		if ( empty( $metrics ) ) {
+			throw new MWException( "No metrics returned" );
+			return;
+		}
+		return $metrics[0]->getValues()[0];
+	}
+
+	private static function getClientInstance() {
+		if ( self::$client == null ) {
+			global $wgGoogleAnalyticsMetricsPath;
+
+			self::$client = new Google_Client();
+			self::$client->setAuthConfig( $wgGoogleAnalyticsMetricsPath );
+			self::$client->setApplicationName( 'GoogleAnalyticsMetrics' );
+			self::$client->setScopes( ['https://www.googleapis.com/auth/analytics.readonly'] );
+		}
+		return self::$client;
+	}
+
+	private static function getAnalyticsReporting() {
+		return new Google_Service_AnalyticsReporting( self::getClientInstance() );
+	}
+
 	/**
 	 * Returns the Analytics service, ready for use
 	 *
-	 * @global string $wgGoogleAnalyticsMetricsEmail
-	 * @global string $wgGoogleAnalyticsMetricsPath
-	 * @global WebRequest $wgRequest
 	 * @return \Google_Service_Analytics
 	 */
 	private static function getService() {
-		//This entire function is copied from GoogleAnalyticsTopPages::getData()
-		global $wgGoogleAnalyticsMetricsEmail, $wgGoogleAnalyticsMetricsPath, $wgRequest;
-
-		// create a new Google_Client object
-		$client = new Google_Client();
-		// set app name
-		$client->setApplicationName( 'GoogleAnalyticsMetrics' );
-
-		$request = $wgRequest;
-		// check, if the client is already authenticated
-		if ( $request->getSessionData( 'service_token' ) !== null ) {
-			$client->setAccessToken( $request->getSessionData( 'service_token' ) );
-		}
-
-		// load the certificate key file
-		$key = file_get_contents( $wgGoogleAnalyticsMetricsPath );
-		// create the service account credentials
-		$cred = new Google_Auth_AssertionCredentials(
-			$wgGoogleAnalyticsMetricsEmail, array( 'https://www.googleapis.com/auth/analytics.readonly' ),
-			$key
-		);
-		// set the credentials
-		$client->setAssertionCredentials( $cred );
-		if ( $client->getAuth()->isAccessTokenExpired() ) {
-			// authenticate the service account
-			$client->getAuth()->refreshTokenWithAssertion( $cred );
-		}
-		// set the service_token to the session for future requests
-		$request->setSessionData( 'service_token', $client->getAccessToken() );
-
-		// Create the needed Google Analytics service object
-		return new Google_Service_Analytics( $client );
+		return new Google_Service_Analytics( self::getClientInstance() );
 	}
 
 	/**
@@ -148,5 +249,24 @@ class GoogleAnalyticsMetricsHooks {
 		$updater->addExtensionTable( GoogleAnalyticsMetricsCache::TABLE,
 			__DIR__ . '/GoogleAnalyticsMetrics.sql', true );
 		return true;
+	}
+
+	public static function extractOptions( array $options ) {
+		$results = array();
+
+		foreach ( $options as $option ) {
+			$pair = explode( '=', $option, 2 );
+			if ( count( $pair ) === 2 ) {
+				$name = trim( $pair[0] );
+				$value = trim( $pair[1] );
+				$results[$name] = $value;
+			}
+
+			if ( count( $pair ) === 1 ) {
+				$name = trim( $pair[0] );
+				$results[$name] = true;
+			}
+		}
+		return $results;
 	}
 }

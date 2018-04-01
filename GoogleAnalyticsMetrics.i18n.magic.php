@@ -11,4 +11,5 @@ $magicWords = array();
  */
 $magicWords['en'] = array(
 	'googleanalyticsmetrics' => array( 0, 'googleanalyticsmetrics' ),
+	'googleanalyticstrackurl' => array( 0, 'googleanalyticstrackurl' )
 );
