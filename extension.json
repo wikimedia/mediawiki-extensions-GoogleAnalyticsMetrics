@@ -2,7 +2,8 @@
 	"name": "GoogleAnalyticsMetrics",
 	"version": "0.2.1 beta",
 	"author": [
-		"Ike Hecht"
+		"Ike Hecht",
+		"Nischay Nahata"
 	],
 	"url": "https://www.mediawiki.org/wiki/Extension:GoogleAnalyticsMetrics",
 	"descriptionmsg": "googleanalyticsmetrics-desc",
@@ -18,10 +19,9 @@
 		"GoogleAnalyticsMetricsCache": "GoogleAnalyticsMetricsCache.php"
 	},
 	"config": {
-		"wgGoogleAnalyticsMetricsAllowed": "*",
-		"wgGoogleAnalyticsMetricsEmail": null,
-		"wgGoogleAnalyticsMetricsPath": null,
-		"wgGoogleAnalyticsMetricsExpiry": 600
+		"GoogleAnalyticsMetricsAllowed": "*",
+		"GoogleAnalyticsMetricsPath": null,
+		"GoogleAnalyticsMetricsExpiry": 600
 	},
 	"ExtensionMessagesFiles": {
 		"GoogleAnalyticsMetricsHooksMagic": "GoogleAnalyticsMetrics.i18n.magic.php"
