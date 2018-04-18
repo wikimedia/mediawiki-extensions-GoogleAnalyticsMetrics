@@ -60,12 +60,19 @@ class GoogleAnalyticsMetricsHooks {
 			$options['page'] = Title::newFromText( $pageName )->getLocalURL();
 			$metric_short_url = self::getMetric( $options );
 
+			$long_url = '';
+			$metric_long_url = 0;
+
 			if ( $wgUsePathInfo ) {
-				$options['page'] = "$wgScript/$pageName";
+				$long_url = "$wgScript/$pageName";
 			} else {
-				$options['page'] = "$wgScript?title=$pageName";
+				$long_url = "$wgScript?title=$pageName";
 			}
-			$metric_long_url = self::getMetric( $options );
+
+			if ( $long_url !== $options['page'] ) {
+				$options['page'] = $long_url;
+				$metric_long_url = self::getMetric( $options );
+			}
 
 			return $metric_short_url + $metric_long_url;
 		}
