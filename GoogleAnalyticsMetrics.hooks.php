@@ -168,7 +168,7 @@ class GoogleAnalyticsMetricsHooks {
 
 		$responseMetric = GoogleAnalyticsMetricsCache::getCache( $request );
 
-		if ( !$responseMetric ) {
+		if ( $responseMetric === false ) {
 			try {
 				$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
 				$body->setReportRequests( array( $request ) );
