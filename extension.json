@@ -21,7 +21,8 @@
 	"config": {
 		"GoogleAnalyticsMetricsAllowed": "*",
 		"GoogleAnalyticsMetricsPath": null,
-		"GoogleAnalyticsMetricsExpiry": 600
+		"GoogleAnalyticsMetricsExpiry": 600,
+		"GoogleAnalyticsMetricsViewId": ""
 	},
 	"ExtensionMessagesFiles": {
 		"GoogleAnalyticsMetricsHooksMagic": "GoogleAnalyticsMetrics.i18n.magic.php"

@@ -79,39 +79,6 @@ class GoogleAnalyticsMetricsHooks {
 		return self::getMetric( $options );
 	}
 
-	// Another way to do this is to provide the Id as a config but its an unnecessary step.
-	public static function getFirstProfileId( $service ) {
-	  $accounts = $service->management_accounts->listManagementAccounts();
-
-	  if ( count( $accounts->getItems() ) > 0 ) {
-		$items = $accounts->getItems();
-		$firstAccountId = $items[0]->getId();
-		$properties = $service->management_webproperties
-			->listManagementWebproperties($firstAccountId);
-
-		if ( count( $properties->getItems() ) > 0 ) {
-		  $items = $properties->getItems();
-		  $firstPropertyId = $items[0]->getId();
-
-		  $profiles = $service->management_profiles
-			  ->listManagementProfiles($firstAccountId, $firstPropertyId);
-
-		  if ( count($profiles->getItems() ) > 0 ) {
-			$items = $profiles->getItems();
-
-			return $items[0]->getId();
-
-		  } else {
-			throw new Exception( 'No views (profiles) found for this user.' );
-		  }
-		} else {
-		  throw new Exception( 'No properties found for this user.' );
-		}
-	  } else {
-		throw new Exception( 'No accounts found for this user.' );
-	  }
-	}
-
 	/**
 	 * Gets the Analytics metric with the dates provided
 	 * Based on https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-php
@@ -120,10 +87,9 @@ class GoogleAnalyticsMetricsHooks {
 	 * @return string
 	 */
 	public static function getMetric( $options ) {
-		global $wgGoogleAnalyticsMetricsExpiry;
+		global $wgGoogleAnalyticsMetricsExpiry, $wgGoogleAnalyticsMetricsViewId;
 
 		$service = self::getService();
-		$viewId = self::getFirstProfileId( $service );
 		$analytics = self::getAnalyticsReporting();
 
 		// Create the DateRange object.
@@ -137,7 +103,7 @@ class GoogleAnalyticsMetricsHooks {
 
 		// Create the ReportRequest object.
 		$request = new Google_Service_AnalyticsReporting_ReportRequest();
-		$request->setViewId( $viewId );
+		$request->setViewId( $wgGoogleAnalyticsMetricsViewId );
 		$request->setDateRanges( $dateRange );
 		$request->setMetrics( array( $metrics ) );
 
