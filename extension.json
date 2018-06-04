@@ -15,8 +15,7 @@
 		]
 	},
 	"AutoloadClasses": {
-		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php",
-		"GoogleAnalyticsMetricsCache": "GoogleAnalyticsMetricsCache.php"
+		"GoogleAnalyticsMetricsHooks": "GoogleAnalyticsMetrics.hooks.php"
 	},
 	"config": {
 		"GoogleAnalyticsMetricsAllowed": "*",
@@ -30,9 +29,6 @@
 	"Hooks": {
 		"ParserFirstCallInit": [
 			"GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
-		],
-		"LoadExtensionSchemaUpdates": [
-			"GoogleAnalyticsMetricsHooks::onLoadExtensionSchemaUpdates"
 		]
 	},
 	"manifest_version": 1
