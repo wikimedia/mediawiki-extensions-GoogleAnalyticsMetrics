@@ -37,7 +37,7 @@ class GoogleAnalyticsMetricsHooks {
 	 * @return string
 	 */
 	public static function googleAnalyticsMetrics( Parser &$parser ) {
-		global $wgGoogleAnalyticsMetricsAllowed, $wgScript, $wgUsePathInfo;
+		global $wgArticlePath, $wgGoogleAnalyticsMetricsAllowed, $wgScript, $wgUsePathInfo;
 		$options = self::extractOptions( array_slice( func_get_args(), 1 ) );
 
 		// This is the earliest date Analytics accepts
@@ -57,7 +57,7 @@ class GoogleAnalyticsMetricsHooks {
 		if ( isset( $options['page'] ) ) {
 			$pageName = $options['page'];
 
-			$options['page'] = Title::newFromText( $pageName )->getLocalURL();
+			$options['page'] = str_replace( '$1', Title::newFromText( $pageName )->getPrefixedDBKey(), $wgArticlePath );
 			$metric_short_url = self::getMetric( $options );
 
 			$long_url = '';
