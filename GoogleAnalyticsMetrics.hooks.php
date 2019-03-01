@@ -40,15 +40,6 @@ class GoogleAnalyticsMetricsHooks {
 		global $wgGoogleAnalyticsMetricsAllowed, $wgScript, $wgUsePathInfo;
 		$options = self::extractOptions( array_slice( func_get_args(), 1 ) );
 
-		// This is the earliest date Analytics accepts
-		if ( !isset( $options['startDate'] ) ) {
-			$options['startDate'] = '2005-01-01';
-		}
-
-		if ( !isset( $options['endDate'] ) ) {
-			$options['endDate'] = 'today';
-		}
-
 		if ( $wgGoogleAnalyticsMetricsAllowed !== '*' && !in_array( $options['metric'],
 				$wgGoogleAnalyticsMetricsAllowed ) ) {
 			return self::getWrappedError( 'The requested metric is forbidden.' );
@@ -88,6 +79,15 @@ class GoogleAnalyticsMetricsHooks {
 	 */
 	public static function getMetric( $options ) {
 		global $wgGoogleAnalyticsMetricsExpiry, $wgGoogleAnalyticsMetricsViewId;
+
+		// This is the earliest date Analytics accepts
+		if ( !isset( $options['startDate'] ) ) {
+			$options['startDate'] = '2005-01-01';
+		}
+
+		if ( !isset( $options['endDate'] ) ) {
+			$options['endDate'] = 'today';
+		}
 
 		$service = self::getService();
 		$analytics = self::getAnalyticsReporting();
@@ -132,7 +132,11 @@ class GoogleAnalyticsMetricsHooks {
 			$request->setDimensionFilterClauses( array( $dimensionFilterClause ) );
 		}
 
-		$responseMetric = GoogleAnalyticsMetricsCache::getCache( $request );
+		// CACHE_DB is slow but we can cache more items - which is likely what we want
+		$cache_object = ObjectCache::getInstance( CACHE_DB );
+		$cache_key = wfMemcKey( 'google-analytics-metrics', md5( serialize( $request ) ) );
+
+		$responseMetric = unserialize( $cache_object->get( $cache_key ) );
 
 		if ( $responseMetric === false ) {
 			try {
@@ -140,22 +144,11 @@ class GoogleAnalyticsMetricsHooks {
 				$body->setReportRequests( array( $request ) );
 				$responseMetric = self::getOutputFromResults( $analytics->reports->batchGet( $body ) );
 
-				GoogleAnalyticsMetricsCache::setCache(
-					$request,
-					$responseMetric,
-					$wgGoogleAnalyticsMetricsExpiry
-				);
-
+				$cache_object->set( $cache_key, serialize( $responseMetric ), $wgGoogleAnalyticsMetricsExpiry );
 			} catch ( Exception $e ) {
 				MWExceptionHandler::logException( $e );
 
-				// Try to at least return something, however old it is
-				$lastValue = GoogleAnalyticsMetricsCache::getCache( $request, true );
-				if ( $lastValue ) {
-					return $lastValue;
-				} else {
-					return self::getWrappedError( 'Error!' );
-				}
+				return self::getWrappedError( 'Error!' );
 			}
 		}
 
@@ -211,17 +204,6 @@ class GoogleAnalyticsMetricsHooks {
 	 */
 	private static function getWrappedError( $text ) {
 		return Html::element( 'span', array( 'class' => 'error' ), $text );
-	}
-
-	/**
-	 *
-	 * @param DatabaseUpdater $updater
-	 * @return boolean
-	 */
-	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
-		$updater->addExtensionTable( GoogleAnalyticsMetricsCache::TABLE,
-			__DIR__ . '/GoogleAnalyticsMetrics.sql', true );
-		return true;
 	}
 
 	public static function extractOptions( array $options ) {
