@@ -27,9 +27,7 @@
 		"GoogleAnalyticsMetricsHooksMagic": "GoogleAnalyticsMetrics.i18n.magic.php"
 	},
 	"Hooks": {
-		"ParserFirstCallInit": [
-			"GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
-		]
+		"ParserFirstCallInit": "GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
 	},
 	"manifest_version": 1
 }
