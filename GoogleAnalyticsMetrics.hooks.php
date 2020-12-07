@@ -134,7 +134,7 @@ class GoogleAnalyticsMetricsHooks {
 
 		// CACHE_DB is slow but we can cache more items - which is likely what we want
 		$cache_object = ObjectCache::getInstance( CACHE_DB );
-		$cache_key = wfMemcKey( 'google-analytics-metrics', md5( serialize( $request ) ) );
+		$cache_key = $cache_object->makeKey( 'google-analytics-metrics', md5( serialize( $request ) ) );
 
 		$responseMetric = unserialize( $cache_object->get( $cache_key ) );
 
