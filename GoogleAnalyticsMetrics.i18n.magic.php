@@ -1,15 +1,14 @@
 <?php
 /**
-
  * @file
  * @author Ike Hecht
  */
-$magicWords = array();
+$magicWords = [];
 
 /** English
  * @author Ike Hecht
  */
-$magicWords['en'] = array(
-	'googleanalyticsmetrics' => array( 0, 'googleanalyticsmetrics' ),
-	'googleanalyticstrackurl' => array( 0, 'googleanalyticstrackurl' )
-);
+$magicWords['en'] = [
+	'googleanalyticsmetrics' => [ 0, 'googleanalyticsmetrics' ],
+	'googleanalyticstrackurl' => [ 0, 'googleanalyticstrackurl' ]
+];

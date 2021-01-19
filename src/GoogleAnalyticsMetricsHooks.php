@@ -2,11 +2,13 @@
 
 class GoogleAnalyticsMetricsHooks {
 
+	/** @var Google_Client */
 	private static $client = null;
+
 	/**
 	 * Sets up the parser function
 	 *
-	 * @param Parser $parser
+	 * @param Parser &$parser
 	 */
 	public static function onParserFirstCallInit( Parser &$parser ) {
 		$parser->setFunctionHook( 'googleanalyticsmetrics',
@@ -15,6 +17,12 @@ class GoogleAnalyticsMetricsHooks {
 			'GoogleAnalyticsMetricsHooks::googleAnalyticsTrackUrl' );
 	}
 
+	/**
+	 * @param Parser &$parser
+	 * @param string $link
+	 * @param string $link_text
+	 * @return array
+	 */
 	public static function googleAnalyticsTrackUrl( Parser &$parser, $link, $link_text ) {
 		$link_html = Linker::makeExternalLink(
 			$link,
@@ -23,17 +31,14 @@ class GoogleAnalyticsMetricsHooks {
 			'',
 			[ "onClick" => "ga('send', 'event', 'link', 'click', '$link' );" ]
 		);
-		return array( $link_html, 'noparse' => true, 'isHTML' => true );
+		return [ $link_html, 'noparse' => true, 'isHTML' => true ];
 	}
 
 	/**
 	 * Handles the googleanalyticsmetrics parser function
 	 *
 	 * @global string|array $wgGoogleAnalyticsMetricsAllowed
-	 * @param Parser $parser Unused
-	 * @param string $metric
-	 * @param string $startDate
-	 * @param string $endDate
+	 * @param Parser &$parser Unused
 	 * @return string
 	 */
 	public static function googleAnalyticsMetrics( Parser &$parser ) {
@@ -75,6 +80,7 @@ class GoogleAnalyticsMetricsHooks {
 	 * Based on https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-php
 	 *
 	 * @global int $wgGoogleAnalyticsMetricsExpiry
+	 * @param array $options
 	 * @return string
 	 */
 	public static function getMetric( $options ) {
@@ -105,31 +111,31 @@ class GoogleAnalyticsMetricsHooks {
 		$request = new Google_Service_AnalyticsReporting_ReportRequest();
 		$request->setViewId( $wgGoogleAnalyticsMetricsViewId );
 		$request->setDateRanges( $dateRange );
-		$request->setMetrics( array( $metrics ) );
+		$request->setMetrics( [ $metrics ] );
 
 		if ( isset( $options['page'] ) ) {
 			// Create the DimensionFilter.
 			$dimensionFilter = new Google_Service_AnalyticsReporting_DimensionFilter();
 			$dimensionFilter->setDimensionName( 'ga:pagePath' );
 			$dimensionFilter->setOperator( 'EXACT' );
-			$dimensionFilter->setExpressions( array( $options['page'] ) );
+			$dimensionFilter->setExpressions( [ $options['page'] ] );
 
 			// Create the DimensionFilterClauses
 			$dimensionFilterClause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
-			$dimensionFilterClause->setFilters( array( $dimensionFilter ) );
+			$dimensionFilterClause->setFilters( [ $dimensionFilter ] );
 
-			$request->setDimensionFilterClauses( array( $dimensionFilterClause ) );
-		} else if ( isset( $options['url'] ) ) {
+			$request->setDimensionFilterClauses( [ $dimensionFilterClause ] );
+		} elseif ( isset( $options['url'] ) ) {
 			// Create the DimensionFilter.
 			$dimensionFilter = new Google_Service_AnalyticsReporting_DimensionFilter();
 			$dimensionFilter->setDimensionName( 'ga:eventLabel' );
 			$dimensionFilter->setOperator( 'EXACT' );
-			$dimensionFilter->setExpressions( array( $options['url'] ) );
+			$dimensionFilter->setExpressions( [ $options['url'] ] );
 
 			// Create the DimensionFilterClauses
 			$dimensionFilterClause = new Google_Service_AnalyticsReporting_DimensionFilterClause();
-			$dimensionFilterClause->setFilters( array( $dimensionFilter ) );
-			$request->setDimensionFilterClauses( array( $dimensionFilterClause ) );
+			$dimensionFilterClause->setFilters( [ $dimensionFilter ] );
+			$request->setDimensionFilterClauses( [ $dimensionFilterClause ] );
 		}
 
 		// CACHE_DB is slow but we can cache more items - which is likely what we want
@@ -141,7 +147,7 @@ class GoogleAnalyticsMetricsHooks {
 		if ( $responseMetric === false ) {
 			try {
 				$body = new Google_Service_AnalyticsReporting_GetReportsRequest();
-				$body->setReportRequests( array( $request ) );
+				$body->setReportRequests( [ $request ] );
 				$responseMetric = self::getOutputFromResults( $analytics->reports->batchGet( $body ) );
 
 				$cache_object->set( $cache_key, serialize( $responseMetric ), $wgGoogleAnalyticsMetricsExpiry );
@@ -152,10 +158,13 @@ class GoogleAnalyticsMetricsHooks {
 			}
 		}
 
-
 		return $responseMetric;
 	}
 
+	/**
+	 * @param array $reports
+	 * @return array
+	 */
 	private static function getOutputFromResults( $reports ) {
 		$rows = $reports[0]->getData()->getRows();
 		if ( empty( $rows ) ) {
@@ -166,11 +175,13 @@ class GoogleAnalyticsMetricsHooks {
 		$metrics = $row->getMetrics();
 		if ( empty( $metrics ) ) {
 			throw new MWException( "No metrics returned" );
-			return;
 		}
 		return $metrics[0]->getValues()[0];
 	}
 
+	/**
+	 * @inheritDoc
+	 */
 	private static function getClientInstance() {
 		if ( self::$client == null ) {
 			global $wgGoogleAnalyticsMetricsPath;
@@ -178,11 +189,14 @@ class GoogleAnalyticsMetricsHooks {
 			self::$client = new Google_Client();
 			self::$client->setAuthConfig( $wgGoogleAnalyticsMetricsPath );
 			self::$client->setApplicationName( 'GoogleAnalyticsMetrics' );
-			self::$client->setScopes( ['https://www.googleapis.com/auth/analytics.readonly'] );
+			self::$client->setScopes( [ 'https://www.googleapis.com/auth/analytics.readonly' ] );
 		}
 		return self::$client;
 	}
 
+	/**
+	 * @return \Google_Service_AnalyticsReporting
+	 */
 	private static function getAnalyticsReporting() {
 		return new Google_Service_AnalyticsReporting( self::getClientInstance() );
 	}
@@ -203,11 +217,15 @@ class GoogleAnalyticsMetricsHooks {
 	 * @return string HTML
 	 */
 	private static function getWrappedError( $text ) {
-		return Html::element( 'span', array( 'class' => 'error' ), $text );
+		return Html::element( 'span', [ 'class' => 'error' ], $text );
 	}
 
+	/**
+	 * @param array $options
+	 * @return array
+	 */
 	public static function extractOptions( array $options ) {
-		$results = array();
+		$results = [];
 
 		foreach ( $options as $option ) {
 			$pair = explode( '=', $option, 2 );
