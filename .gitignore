@@ -16,9 +16,14 @@ composer.lock
 cscope.files
 cscope.out
 *.orig
+
 ## NetBeans
 nbproject*
 project.index
+
 ## Sublime
 sublime-*
 sftp-config.json
+
+# Visual Studio Code
+.vscode/
