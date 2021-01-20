@@ -37,7 +37,6 @@ class GoogleAnalyticsMetricsHooks {
 	/**
 	 * Handles the googleanalyticsmetrics parser function
 	 *
-	 * @global string|array $wgGoogleAnalyticsMetricsAllowed
 	 * @param Parser &$parser Unused
 	 * @return string
 	 */
@@ -79,7 +78,6 @@ class GoogleAnalyticsMetricsHooks {
 	 * Gets the Analytics metric with the dates provided
 	 * Based on https://developers.google.com/analytics/devguides/reporting/core/v4/quickstart/service-php
 	 *
-	 * @global int $wgGoogleAnalyticsMetricsExpiry
 	 * @param array $options
 	 * @return string
 	 */
