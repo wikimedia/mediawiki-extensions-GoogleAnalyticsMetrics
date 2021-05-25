@@ -2,7 +2,7 @@
 
 class GoogleAnalyticsMetricsHooks {
 
-	/** @var Google_Client */
+	/** @var Google_Client|null */
 	private static $client = null;
 
 	/**
@@ -38,7 +38,7 @@ class GoogleAnalyticsMetricsHooks {
 	 * Handles the googleanalyticsmetrics parser function
 	 *
 	 * @param Parser &$parser Unused
-	 * @return string
+	 * @return mixed
 	 */
 	public static function googleAnalyticsMetrics( Parser &$parser ) {
 		global $wgArticlePath, $wgGoogleAnalyticsMetricsAllowed, $wgScript, $wgUsePathInfo;
@@ -69,6 +69,7 @@ class GoogleAnalyticsMetricsHooks {
 				$metric_long_url = self::getMetric( $options );
 			}
 
+			// @phan-suppress-next-line PhanTypeInvalidLeftOperandOfAdd
 			return $metric_short_url + $metric_long_url;
 		}
 		return self::getMetric( $options );
@@ -161,7 +162,8 @@ class GoogleAnalyticsMetricsHooks {
 
 	/**
 	 * @param array $reports
-	 * @return array
+	 * @return array|int
+	 * @throws MWException
 	 */
 	private static function getOutputFromResults( $reports ) {
 		$rows = $reports[0]->getData()->getRows();
