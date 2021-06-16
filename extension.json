@@ -29,5 +29,6 @@
 	"Hooks": {
 		"ParserFirstCallInit": "GoogleAnalyticsMetricsHooks::onParserFirstCallInit"
 	},
+	"load_composer_autoloader": true,
 	"manifest_version": 1
 }
