@@ -20,7 +20,7 @@
 		}
 	],
 	"require": {
-		"google/apiclient": "2.2.1"
+		"google/apiclient": "2.12.6"
 	},
 	"require-dev": {
 		"mediawiki/mediawiki-codesniffer": "40.0.1",
