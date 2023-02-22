@@ -1,8 +1,9 @@
 {
 	"@metadata": {
 		"authors": [
-			"Gomoko"
+			"Gomoko",
+			"Verdy p"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Obtenir des métriques depuis Google Analytics"
+	"googleanalyticsmetrics-desc": "Obtient des métriques depuis Google Analytics"
 }
