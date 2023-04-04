@@ -16,12 +16,27 @@ class GoogleAnalyticsMetricsHooks {
 	}
 
 	public static function googleAnalyticsTrackUrl( Parser &$parser, $link, $link_text ) {
+		$link = Sanitizer::cleanUrl( $link );
+		// We're assuming no relative links here.
+		$prots = $parser->getUrlProtocols();
+
+		// Make sure only to use valid protocols. Important for security.
+		if ( !preg_match( "/^((?i)$prots)/", $link ) ) {
+			return '<strong class="error">' .
+				wfMessage( 'googleanalyticsmetrics-invalid-url' )->text() .
+				'</strong>';
+		}
+		// Register the link to ensure that spam filters see it
+		$parser->getOutput()->addExternalLink( $link );
+
+		// Linker does html encoding, but we need to ensure the value is JS econded for onclick
+		$linkJs = Xml::encodeJsVar( $link );
 		$link_html = Linker::makeExternalLink(
 			$link,
 			$link_text,
 			true,
 			'',
-			[ "onClick" => "ga('send', 'event', 'link', 'click', '$link' );" ]
+			[ "onClick" => "ga('send', 'event', 'link', 'click', $linkJs );" ]
 		);
 		return array( $link_html, 'noparse' => true, 'isHTML' => true );
 	}
