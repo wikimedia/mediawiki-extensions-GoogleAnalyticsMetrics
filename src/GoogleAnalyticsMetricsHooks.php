@@ -31,7 +31,7 @@ class GoogleAnalyticsMetricsHooks {
 		// Make sure only to use valid protocols. Important for security.
 		if ( !preg_match( "/^((?i)$prots)/", $link ) ) {
 			return '<strong class="error">' .
-				wfMessage( 'googleanalyticsmetrics-invalid-url' )->text() .
+				wfMessage( 'googleanalyticsmetrics-invalid-url' )->inContentLanguage()->text() .
 				'</strong>';
 		}
 		// Register the link to ensure that spam filters see it
