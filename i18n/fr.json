@@ -5,5 +5,6 @@
 			"Verdy p"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Obtient des métriques depuis Google Analytics"
+	"googleanalyticsmetrics-desc": "Obtient des métriques depuis Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "Protocole d’URL non valide"
 }

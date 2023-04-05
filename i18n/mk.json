@@ -4,5 +4,6 @@
 			"Bjankuloski06"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Дава метрики од Google Analytics"
+	"googleanalyticsmetrics-desc": "Дава метрики од Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "Неважечки URL-протокол"
 }

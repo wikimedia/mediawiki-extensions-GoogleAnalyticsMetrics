@@ -4,5 +4,6 @@
 			"McDutchie"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Obtene metricas de Google Analytics"
+	"googleanalyticsmetrics-desc": "Obtene metricas de Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "Protocollo URL non valide"
 }

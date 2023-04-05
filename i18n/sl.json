@@ -4,5 +4,6 @@
 			"Eleassar"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Pridobi metrike iz Google Analitike"
+	"googleanalyticsmetrics-desc": "Pridobi metrike iz Google Analitike",
+	"googleanalyticsmetrics-invalid-url": "Neveljaven URL-protokol"
 }
