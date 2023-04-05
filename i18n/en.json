@@ -5,5 +5,5 @@
 		]
 	},
 	"googleanalyticsmetrics-desc": "Gets metrics from Google Analytics",
-	"googleanalyticsmetrics-invalid-url": "Invalid url protocol"
+	"googleanalyticsmetrics-invalid-url": "Invalid URL protocol"
 }
