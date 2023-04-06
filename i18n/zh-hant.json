@@ -4,5 +4,6 @@
 			"Kly"
 		]
 	},
-	"googleanalyticsmetrics-desc": "從 Google 分析取得指標"
+	"googleanalyticsmetrics-desc": "從 Google 分析取得指標",
+	"googleanalyticsmetrics-invalid-url": "無效的 URL 協定"
 }
