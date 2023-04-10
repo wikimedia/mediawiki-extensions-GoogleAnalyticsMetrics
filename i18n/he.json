@@ -4,5 +4,6 @@
 			"Amire80"
 		]
 	},
-	"googleanalyticsmetrics-desc": "קבלת מדדים מגוגל אנליטיקס"
+	"googleanalyticsmetrics-desc": "קבלת מדדים מגוגל אנליטיקס",
+	"googleanalyticsmetrics-invalid-url": "פרוטוקול URL בלתי־תקין"
 }
