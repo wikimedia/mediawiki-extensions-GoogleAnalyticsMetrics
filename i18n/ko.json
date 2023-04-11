@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Revi"
+			"Revi",
+			"Ykhwong"
 		]
 	},
-	"googleanalyticsmetrics-desc": "구글 애널리틱스에서 메트릭을 읽어옵니다"
+	"googleanalyticsmetrics-desc": "구글 애널리틱스에서 메트릭을 읽어옵니다",
+	"googleanalyticsmetrics-invalid-url": "잘못된 URL 프로토콜"
 }
