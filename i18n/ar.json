@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
+			"Alshamiri1",
 			"ديفيد"
 		]
 	},
-	"googleanalyticsmetrics-desc": "الحصول على مقاييس من تحليلات جوجل"
+	"googleanalyticsmetrics-desc": "الحصول على مقاييس من تحليلات جوجل",
+	"googleanalyticsmetrics-invalid-url": "بروتوكول URL غير صالح"
 }
