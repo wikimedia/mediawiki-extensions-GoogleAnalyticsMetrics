@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Elisardojm"
+			"Elisardojm",
+			"Toliño"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Obtén métricas de Google Analytics"
+	"googleanalyticsmetrics-desc": "Obtén métricas de Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "O protocolo do enderezo URL non é válido"
 }
