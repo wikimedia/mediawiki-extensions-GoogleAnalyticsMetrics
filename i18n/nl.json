@@ -1,0 +1,9 @@
+{
+	"@metadata": {
+		"authors": [
+			"McDutchie"
+		]
+	},
+	"googleanalyticsmetrics-desc": "Haalt statistieken op van Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "Ongeldig URL-protocol"
+}
