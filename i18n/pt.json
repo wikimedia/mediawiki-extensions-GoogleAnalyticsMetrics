@@ -4,5 +4,6 @@
 			"Hamilton Abreu"
 		]
 	},
-	"googleanalyticsmetrics-desc": "Obter métricas do Google Analytics"
+	"googleanalyticsmetrics-desc": "Obter métricas do Google Analytics",
+	"googleanalyticsmetrics-invalid-url": "Protocolo de URL inválido"
 }
