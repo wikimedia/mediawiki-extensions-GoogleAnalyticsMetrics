@@ -182,13 +182,13 @@ class GoogleAnalyticsMetricsHooks {
 	 */
 	private static function getOutputFromResults( $reports ) {
 		$rows = $reports[0]->getData()->getRows();
-		if ( empty( $rows ) ) {
+		if ( !$rows ) {
 			return 0;
 		}
 		$row = $rows[0];
 		$dimensions = $row->getDimensions();
 		$metrics = $row->getMetrics();
-		if ( empty( $metrics ) ) {
+		if ( !$metrics ) {
 			throw new MWException( "No metrics returned" );
 		}
 		return $metrics[0]->getValues()[0];
