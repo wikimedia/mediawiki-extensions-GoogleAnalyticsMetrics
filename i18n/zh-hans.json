@@ -1,8 +1,10 @@
 {
 	"@metadata": {
 		"authors": [
-			"Liuxinyu970226"
+			"Liuxinyu970226",
+			"Anterdc99"
 		]
 	},
-	"googleanalyticsmetrics-desc": "从Google Analytics获取度量"
+	"googleanalyticsmetrics-desc": "从Google Analytics获取度量",
+	"googleanalyticsmetrics-invalid-url": "无效的URL协议"
 }
