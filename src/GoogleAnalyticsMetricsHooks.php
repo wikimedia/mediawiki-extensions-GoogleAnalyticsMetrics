@@ -1,5 +1,9 @@
 <?php
 
+use MediaWiki\Html\Html;
+use MediaWiki\Linker\Linker;
+use MediaWiki\Title\Title;
+
 class GoogleAnalyticsMetricsHooks {
 
 	/** @var Google_Client|null */
