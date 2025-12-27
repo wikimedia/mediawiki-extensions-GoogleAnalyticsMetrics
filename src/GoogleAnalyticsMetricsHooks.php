@@ -42,7 +42,7 @@ class GoogleAnalyticsMetricsHooks {
 		$parser->getOutput()->addExternalLink( $link );
 
 		// Linker does html encoding, but we need to ensure the value is JS econded for onclick
-		$linkJs = Xml::encodeJsVar( $link );
+		$linkJs = Html::encodeJsVar( $link );
 		$link_html = Linker::makeExternalLink(
 			$link,
 			$link_text,
