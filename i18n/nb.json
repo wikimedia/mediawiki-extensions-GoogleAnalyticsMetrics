@@ -1,9 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"Jon Harald Søby"
-		]
-	},
-	"googleanalyticsmetrics-desc": "Henter metrikk fra Google Analytics",
-	"googleanalyticsmetrics-invalid-url": "Ugyldig URL-protokoll"
-}

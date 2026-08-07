@@ -1,9 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"Ike Hecht"
-		]
-	},
-	"googleanalyticsmetrics-desc": "{{desc|name=GoogleAnalyticsMetrics|url=https://www.mediawiki.org/wiki/Extension:GoogleAnalyticsMetrics}}",
-	"googleanalyticsmetrics-invalid-url": "Error given if a url is used that does not start with a valid protocol like http://."
-}

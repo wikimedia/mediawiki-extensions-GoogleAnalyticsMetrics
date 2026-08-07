@@ -1,9 +1,0 @@
-{
-	"@metadata": {
-		"authors": [
-			"Metalhead64"
-		]
-	},
-	"googleanalyticsmetrics-desc": "Ruft Metriken von Google Analytics ab",
-	"googleanalyticsmetrics-invalid-url": "Ungültiges URL-Protokoll"
-}
